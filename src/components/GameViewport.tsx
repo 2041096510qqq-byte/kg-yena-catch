@@ -35,7 +35,8 @@ export default function GameViewport({ children }: GameViewportProps) {
         style={{
           position: 'absolute',
           top: offsetY,
-          left: 0,
+          left: '50%',
+          marginLeft: -DESIGN_WIDTH / 2,
           width: DESIGN_WIDTH,
           height: DESIGN_HEIGHT,
           transform: `scale(${scale})`,
