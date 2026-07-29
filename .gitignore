@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Vite
+.vite/
+vite.config.ts.timestamp-*
+
+# Claude Code
+.superpowers/
+
+# OpenAI
+.openai/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.idea/
+*.swp
+*.swo

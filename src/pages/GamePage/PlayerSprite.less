@@ -1,0 +1,39 @@
+.player-sprite {
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  bottom: calc(100% - 75px);
+}
+
+.player-sprite.stunned .player-img {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+.player-img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.stun-star {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  animation: spin 1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+@keyframes spin {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) rotate(360deg); }
+}

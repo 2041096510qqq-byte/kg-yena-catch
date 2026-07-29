@@ -1,0 +1,64 @@
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+  z-index: 20;
+}
+
+.hud-timer {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  &.urgent {
+    color: #ff4444;
+    animation: timerBlink 1s steps(2) infinite;
+  }
+}
+
+@keyframes timerBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hud-score {
+  font-size: 40px;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.hud-combo {
+  font-size: 28px;
+  color: #ff6b9d;
+  font-weight: 700;
+}
+
+.hud-fever {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fever-label {
+  font-size: 18px;
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.fever-cells {
+  display: flex;
+  gap: 2px;
+}
+
+.fever-cell {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}

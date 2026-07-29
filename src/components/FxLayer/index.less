@@ -1,0 +1,103 @@
+.fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.float-score-text {
+  position: absolute;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  opacity: 0;
+  &.visible {
+    animation: floatUp 800ms ease-out forwards;
+  }
+}
+
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-60px); }
+}
+
+.combo-title-popup {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 56px;
+  font-weight: 700;
+  color: #ff6b9d;
+  text-shadow: 0 4px 20px rgba(255, 107, 157, 0.6);
+  opacity: 0;
+  white-space: nowrap;
+  &.visible {
+    animation: comboPop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+}
+
+@keyframes comboPop {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0); }
+  70%  { transform: translate(-50%, -50%) scale(1.2); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.fever-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+  animation: feverFlash 1200ms ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes feverFlash {
+  0%   { opacity: 1; transform: scale(0.5); }
+  30%  { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1) translateY(-100px); }
+}
+
+.fever-sparkles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.fever-sparkle {
+  position: absolute;
+  top: -60px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  animation-name: sparkleFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes sparkleFall {
+  from {
+    transform: translateY(-80px) rotate(0deg) scale(0.7);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(1450px) rotate(360deg) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.stun-overlay {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.6);
+  pointer-events: none;
+}
