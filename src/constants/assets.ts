@@ -1,5 +1,6 @@
-const IMG = '/assets/imgs'
-const AUDIO = '/assets/audio'
+const BASE = '/kg-yena-catch'
+const IMG = `${BASE}/assets/imgs`
+const AUDIO = `${BASE}/assets/audio`
 
 export const ASSETS = {
   background: {
