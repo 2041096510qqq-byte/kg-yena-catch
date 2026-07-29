@@ -4,7 +4,6 @@ import { RootState } from '../../store'
 import { SubState } from '../../constants/enum'
 import { ASSETS } from '../../constants/assets'
 import { pauseGame } from '../../store/slices/gameSlice'
-import { ImageButton } from '../../components/ImageButton'
 import { PlayerSprite } from './PlayerSprite'
 import './PlayerArea.less'
 
@@ -18,13 +17,16 @@ export function PlayerArea({ playerXRef }: PlayerAreaProps) {
 
   return (
     <div className="player-area">
-      <ImageButton
+      <button
         className="pause-btn"
-        src={ASSETS.ui.buttonPause}
-        label="暂停游戏"
-        onClick={() => dispatch(pauseGame())}
+        onClick={(e) => {
+          e.stopPropagation()
+          dispatch(pauseGame())
+        }}
         disabled={subState === SubState.STUNNED}
-      />
+      >
+        <img src={ASSETS.ui.buttonPause} alt="暂停" />
+      </button>
       <PlayerSprite xRef={playerXRef} />
     </div>
   )
