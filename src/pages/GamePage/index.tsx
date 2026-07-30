@@ -13,6 +13,7 @@ import { useGameLoop } from '../../hooks/useGameLoop'
 import {
   releaseGameAudioOwner,
   retainGameAudioOwner,
+  resetSfxCache,
   useGameAudio,
 } from '../../hooks/useGameAudio'
 import { ASSETS } from '../../constants/assets'
@@ -39,6 +40,7 @@ export default function GamePage() {
       resetElapsedTime()
       resetAllTimers()
       clearElements()
+      resetSfxCache()
       void playBGM()
     } else if (gameState === GameState.PLAYING) {
       startLoop()

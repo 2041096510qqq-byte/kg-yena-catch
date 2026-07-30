@@ -35,6 +35,18 @@ function getSfxAudio(type: SfxType): HTMLAudioElement | null {
   return sfxAudioCache[type]
 }
 
+// Reset SFX cache when game restarts
+export function resetSfxCache() {
+  Object.keys(sfxAudioCache).forEach(key => {
+    const audio = sfxAudioCache[key as SfxType]
+    if (audio) {
+      audio.pause()
+      audio.currentTime = 0
+    }
+    delete sfxAudioCache[key as SfxType]
+  })
+}
+
 let bgmAudio: HTMLAudioElement | null = null
 let audioContext: AudioContext | null = null
 let activeGameAudioOwners = 0
