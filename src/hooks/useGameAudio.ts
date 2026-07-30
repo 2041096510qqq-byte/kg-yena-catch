@@ -45,6 +45,16 @@ export function resetSfxCache() {
     }
     delete sfxAudioCache[key as SfxType]
   })
+  // Reset BGM
+  if (bgmAudio) {
+    bgmAudio.pause()
+    bgmAudio.currentTime = 0
+  }
+  // Reset AudioContext
+  if (audioContext && audioContext.state !== 'closed') {
+    audioContext.close().catch(() => {})
+  }
+  audioContext = null
 }
 
 let bgmAudio: HTMLAudioElement | null = null
@@ -52,20 +62,37 @@ let audioContext: AudioContext | null = null
 let activeGameAudioOwners = 0
 let gameAudioOwnerToken = 0
 
+function createBGM(): HTMLAudioElement {
+  bgmAudio = new Audio(ASSETS.audio.bgmGame)
+  bgmAudio.loop = true
+  bgmAudio.volume = 0.35
+  return bgmAudio
+}
+
 function getBGM(): HTMLAudioElement {
   if (!bgmAudio) {
-    bgmAudio = new Audio(ASSETS.audio.bgmGame)
-    bgmAudio.loop = true
-    bgmAudio.volume = 0.35
+    return createBGM()
   }
   return bgmAudio
 }
 
 function getAudioContext(): AudioContext {
-  if (!audioContext) {
+  if (!audioContext || audioContext.state === 'closed') {
     audioContext = new AudioContext()
   }
   return audioContext
+}
+
+function ensureAudioContextRunning(): Promise<void> {
+  const ctx = getAudioContext()
+  if (ctx.state === 'suspended') {
+    return ctx.resume()
+  }
+  if (ctx.state === 'closed') {
+    audioContext = new AudioContext()
+    return audioContext.resume()
+  }
+  return Promise.resolve()
 }
 
 function playSyntheticSFX(type: SfxType) {
@@ -113,16 +140,15 @@ export function releaseGameAudioOwner() {
 export function useGameAudio() {
   const playBGM = useCallback(async () => {
     try {
-      const ctx = getAudioContext()
-      if (ctx.state !== 'running') {
-        void ctx.resume().catch(() => undefined)
-      }
+      await ensureAudioContextRunning()
     } catch {
-      // AudioContext construction/resume is optional and must not block BGM.
+      // AudioContext resume is optional and must not block BGM.
     }
 
     try {
-      await getBGM().play().catch(() => undefined)
+      const bgm = getBGM()
+      bgm.currentTime = 0
+      await bgm.play().catch(() => undefined)
     } catch {
       // Audio element construction can fail in non-browser environments.
     }
@@ -137,9 +163,6 @@ export function useGameAudio() {
   }, [])
 
   const playSFX = useCallback((type: SfxType) => {
-    const ctx = getAudioContext()
-
-    // Ensure AudioContext is running on mobile
     const tryPlay = () => {
       const audio = getSfxAudio(type)
       if (!audio) {
@@ -161,15 +184,9 @@ export function useGameAudio() {
       audio.play().catch(fallback)
     }
 
-    if (ctx.state === 'suspended') {
-      void ctx.resume().then(tryPlay).catch(() => playSyntheticSFX(type))
-    } else if (ctx.state === 'running') {
-      tryPlay()
-    } else {
-      // Context might be closed, recreate it
-      audioContext = new AudioContext()
-      void audioContext.resume().then(tryPlay).catch(() => playSyntheticSFX(type))
-    }
+    ensureAudioContextRunning()
+      .then(tryPlay)
+      .catch(() => playSyntheticSFX(type))
   }, [])
 
   return { playBGM, pauseBGM, stopBGM, playSFX }
