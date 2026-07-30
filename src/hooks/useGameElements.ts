@@ -83,5 +83,10 @@ export function useGameElements() {
       .filter(el => el.y < ELEMENT_DESPAWN_Y)
   }, [])
 
-  return { elementsRef, spawnElement, updateElements, getCurrentPhaseIndex, lastSpawnTimeRef }
+  const clearElements = useCallback(() => {
+    elementsRef.current = []
+    lastSpawnTimeRef.current = 0
+  }, [])
+
+  return { elementsRef, spawnElement, updateElements, getCurrentPhaseIndex, lastSpawnTimeRef, clearElements }
 }

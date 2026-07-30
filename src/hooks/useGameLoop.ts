@@ -23,7 +23,7 @@ export function useGameLoop() {
   const dispatch = useDispatch()
 
   const { frameInputRef } = useGameInput()
-  const { elementsRef, spawnElement, updateElements } = useGameElements()
+  const { elementsRef, spawnElement, updateElements, clearElements } = useGameElements()
   const { checkCollision } = useCollision()
   const { particlesRef, spawnParticles, updateParticles } = useParticles()
   const { playSFX } = useGameAudio()
@@ -232,6 +232,7 @@ export function useGameLoop() {
     stopLoop,
     resetElapsedTime,
     resetAllTimers,
+    clearElements,
     isRunningRef,
     playerXRef,
     elementsRef,

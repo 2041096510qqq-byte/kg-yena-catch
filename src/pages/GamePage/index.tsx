@@ -26,6 +26,7 @@ export default function GamePage() {
     stopLoop,
     resetElapsedTime,
     resetAllTimers,
+    clearElements,
     playerXRef,
     elementsRef,
     particlesRef,
@@ -37,6 +38,7 @@ export default function GamePage() {
     if (gameState === GameState.COUNTDOWN) {
       resetElapsedTime()
       resetAllTimers()
+      clearElements()
       void playBGM()
     } else if (gameState === GameState.PLAYING) {
       startLoop()
