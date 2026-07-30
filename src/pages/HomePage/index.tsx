@@ -8,7 +8,7 @@ import './index.less'
 
 export default function HomePage() {
   const dispatch = useDispatch()
-  const { totalScore, bestScore, selectedSkin } = useSelector((s: RootState) => s.game)
+  const { totalScore, bestScore } = useSelector((s: RootState) => s.game)
   const { playBGM } = useGameAudio()
 
   function handleStart() {
