@@ -99,14 +99,29 @@
 .fever-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
-  animation: feverBgPulse 0.5s ease-in-out infinite alternate;
+  border: 8px solid transparent;
+  border-radius: 0;
+  background:
+    linear-gradient(#ffd700, #ffd700) padding-box,
+    linear-gradient(to right, #ffd700, #ff8c00) border-box;
+  animation: feverBorderPulse 0.3s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
 @keyframes feverBgPulse {
   from { opacity: 0.3; }
   to { opacity: 0.7; }
+}
+
+@keyframes feverBorderPulse {
+  from {
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.1), 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  to {
+    border-color: rgba(255, 215, 0, 0.8);
+    box-shadow: inset 0 0 60px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.6);
+  }
 }
 
 .stun-overlay {

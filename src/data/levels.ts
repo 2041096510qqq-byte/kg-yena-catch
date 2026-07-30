@@ -35,8 +35,8 @@ export const LEVELS: PhaseConfig[] = [
   },
 ]
 
-// 基础速度：元素从 spawn_y 到玩家区域的时间约 3s
-export const BASE_FALL_DURATION = 3.0 // 秒
+// 基础速度：元素从 spawn_y 到玩家区域的时间约 2.5s
+export const BASE_FALL_DURATION = 2.5 // 秒
 export const BASE_SPEED = 1 / BASE_FALL_DURATION // 归一化/s
 
 // 各阶段速度倍率
