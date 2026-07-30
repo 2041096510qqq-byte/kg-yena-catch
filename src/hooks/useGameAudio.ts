@@ -125,24 +125,39 @@ export function useGameAudio() {
   }, [])
 
   const playSFX = useCallback((type: SfxType) => {
-    const audio = getSfxAudio(type)
-    if (!audio) {
-      playSyntheticSFX(type)
-      return
+    const ctx = getAudioContext()
+
+    // Ensure AudioContext is running on mobile
+    const tryPlay = () => {
+      const audio = getSfxAudio(type)
+      if (!audio) {
+        playSyntheticSFX(type)
+        return
+      }
+
+      // Reset to beginning and play
+      audio.currentTime = 0
+
+      let didFallback = false
+      const fallback = () => {
+        if (didFallback) return
+        didFallback = true
+        playSyntheticSFX(type)
+      }
+
+      audio.addEventListener('error', fallback, { once: true })
+      audio.play().catch(fallback)
     }
 
-    // Reset to beginning and play
-    audio.currentTime = 0
-
-    let didFallback = false
-    const fallback = () => {
-      if (didFallback) return
-      didFallback = true
-      playSyntheticSFX(type)
+    if (ctx.state === 'suspended') {
+      void ctx.resume().then(tryPlay).catch(() => playSyntheticSFX(type))
+    } else if (ctx.state === 'running') {
+      tryPlay()
+    } else {
+      // Context might be closed, recreate it
+      audioContext = new AudioContext()
+      void audioContext.resume().then(tryPlay).catch(() => playSyntheticSFX(type))
     }
-
-    audio.addEventListener('error', fallback, { once: true })
-    audio.play().catch(fallback)
   }, [])
 
   return { playBGM, pauseBGM, stopBGM, playSFX }
