@@ -54,8 +54,8 @@ export function useGameElements() {
       p => elapsedTime >= p.start && elapsedTime <= p.end
     )
     const finalMultiplier = inSpeedBoost ? speedMultiplier * SPEED_BOOST_MULTIPLIER : speedMultiplier
-    // Add ±30% random variation to speed
-    const randomVariation = 0.7 + Math.random() * 0.6
+    // Add ±80% random variation to speed (0.2 to 1.8)
+    const randomVariation = 0.2 + Math.random() * 1.6
     const speed = BASE_SPEED * finalMultiplier * randomVariation
     const x = ELEMENT_SPAWN_MIN_X
       + Math.random() * (ELEMENT_SPAWN_MAX_X - ELEMENT_SPAWN_MIN_X)
