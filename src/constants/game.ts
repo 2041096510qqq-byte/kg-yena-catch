@@ -1,5 +1,5 @@
 // 游戏总时长（秒）
-export const GAME_DURATION = 180
+export const GAME_DURATION = 78
 
 // 游戏设计尺寸（px）
 export const GAME_WIDTH = 750
