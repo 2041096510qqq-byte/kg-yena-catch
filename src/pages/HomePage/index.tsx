@@ -41,15 +41,6 @@ export default function HomePage() {
       </div>
 
       <div className="home-actions">
-        <div className="skin-control">
-          <ImageButton
-            className="btn-skin"
-            src={ASSETS.ui.buttonSkin}
-            label="皮肤选择暂未开放"
-            disabled
-          />
-          <span className="skin-label">皮肤</span>
-        </div>
         <div className="start-control">
           <ImageButton
             className="btn-start"
