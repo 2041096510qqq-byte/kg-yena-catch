@@ -3,15 +3,12 @@ import { resetToIdle } from '../../store/slices/gameSlice'
 import { ASSETS } from '../../constants/assets'
 import './index.less'
 
-const GUIDE_SEEN_KEY = 'guideSeen'
-
 export default function GuidePage() {
   const dispatch = useDispatch()
 
   function handleConfirm(e: React.MouseEvent | React.TouchEvent) {
     e.stopPropagation()
     e.preventDefault()
-    localStorage.setItem(GUIDE_SEEN_KEY, 'true')
     dispatch(resetToIdle())
   }
 
