@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
 import { SubState } from '../../constants/enum'
@@ -14,6 +14,7 @@ export function PlayerSprite({ xRef }: PlayerSpriteProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { subState } = useSelector((s: RootState) => s.game)
   const isStunned = subState === SubState.STUNNED
+  const [isHit, setIsHit] = useState(false)
 
   useEffect(() => {
     let rafId: number
@@ -28,10 +29,18 @@ export function PlayerSprite({ xRef }: PlayerSpriteProps) {
     return () => cancelAnimationFrame(rafId)
   }, [xRef])
 
+  // Expose hit animation trigger
+  useEffect(() => {
+    ;(window as any).__triggerPlayerHit = () => {
+      setIsHit(true)
+      setTimeout(() => setIsHit(false), 400)
+    }
+  }, [])
+
   return (
     <div
       ref={ref}
-      className={`player-sprite ${isStunned ? 'stunned' : ''}`}
+      className={`player-sprite ${isStunned ? 'stunned' : ''} ${isHit ? 'hit' : ''}`}
       style={{ position: 'absolute', left: 0 }}
     >
       <img

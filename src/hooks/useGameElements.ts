@@ -54,7 +54,9 @@ export function useGameElements() {
       p => elapsedTime >= p.start && elapsedTime <= p.end
     )
     const finalMultiplier = inSpeedBoost ? speedMultiplier * SPEED_BOOST_MULTIPLIER : speedMultiplier
-    const speed = BASE_SPEED * finalMultiplier
+    // Add ±30% random variation to speed
+    const randomVariation = 0.7 + Math.random() * 0.6
+    const speed = BASE_SPEED * finalMultiplier * randomVariation
     const x = ELEMENT_SPAWN_MIN_X
       + Math.random() * (ELEMENT_SPAWN_MAX_X - ELEMENT_SPAWN_MIN_X)
     const isHeart = type === ElementType.HEART

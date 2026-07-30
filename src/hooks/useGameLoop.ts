@@ -85,6 +85,8 @@ export function useGameLoop() {
         playSFX('stun')
         dispatch(recordCollect(ElementType.BOMB))
         dispatch(loseLife())
+        // Trigger hit animation
+        ;(window as any).__triggerPlayerHit?.()
         // Only trigger stun if game is still playing (lives > 0)
         if (store.getState().game.gameState === GameState.PLAYING) {
           dispatch(addScore({ delta: -2, x: screenX, y: screenY }))
