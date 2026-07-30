@@ -1,7 +1,7 @@
 import { useRef, useCallback } from 'react'
 import { GameElement, ElementType } from '../constants/enum'
 import { ELEMENT_SPAWN_Y, ELEMENT_DESPAWN_Y, ELEMENT_SPAWN_MIN_X, ELEMENT_SPAWN_MAX_X } from '../constants/game'
-import { LEVELS, SPEED_MULTIPLIERS, BASE_SPEED } from '../data/levels'
+import { LEVELS, SPEED_MULTIPLIERS, BASE_SPEED, SPEED_BOOST_PERIODS, SPEED_BOOST_MULTIPLIER } from '../data/levels'
 
 let idCounter = 0
 function genId() {
@@ -49,7 +49,12 @@ export function useGameElements() {
     }
 
     const speedMultiplier = SPEED_MULTIPLIERS[phaseIndex] ?? 1.0
-    const speed = BASE_SPEED * speedMultiplier
+    // Check if in speed boost period
+    const inSpeedBoost = SPEED_BOOST_PERIODS.some(
+      p => elapsedTime >= p.start && elapsedTime <= p.end
+    )
+    const finalMultiplier = inSpeedBoost ? speedMultiplier * SPEED_BOOST_MULTIPLIER : speedMultiplier
+    const speed = BASE_SPEED * finalMultiplier
     const x = ELEMENT_SPAWN_MIN_X
       + Math.random() * (ELEMENT_SPAWN_MAX_X - ELEMENT_SPAWN_MIN_X)
     const isHeart = type === ElementType.HEART
