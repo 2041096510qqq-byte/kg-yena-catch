@@ -20,6 +20,21 @@ const FILE_SFX: Partial<Record<SfxType, string>> = {
   fever: ASSETS.audio.feverBoost,
 }
 
+// Cache audio elements to avoid creating new instances on each play
+const sfxAudioCache: Partial<Record<SfxType, HTMLAudioElement>> = {}
+
+function getSfxAudio(type: SfxType): HTMLAudioElement | null {
+  const file = FILE_SFX[type]
+  if (!file) return null
+
+  if (!sfxAudioCache[type]) {
+    const audio = new Audio(file)
+    audio.volume = 0.65
+    sfxAudioCache[type] = audio
+  }
+  return sfxAudioCache[type]
+}
+
 let bgmAudio: HTMLAudioElement | null = null
 let audioContext: AudioContext | null = null
 let activeGameAudioOwners = 0
@@ -110,11 +125,14 @@ export function useGameAudio() {
   }, [])
 
   const playSFX = useCallback((type: SfxType) => {
-    const file = FILE_SFX[type]
-    if (!file) {
+    const audio = getSfxAudio(type)
+    if (!audio) {
       playSyntheticSFX(type)
       return
     }
+
+    // Reset to beginning and play
+    audio.currentTime = 0
 
     let didFallback = false
     const fallback = () => {
@@ -123,14 +141,8 @@ export function useGameAudio() {
       playSyntheticSFX(type)
     }
 
-    try {
-      const audio = new Audio(file)
-      audio.volume = 0.65
-      audio.addEventListener('error', fallback, { once: true })
-      void audio.play().catch(fallback)
-    } catch {
-      fallback()
-    }
+    audio.addEventListener('error', fallback, { once: true })
+    audio.play().catch(fallback)
   }, [])
 
   return { playBGM, pauseBGM, stopBGM, playSFX }
