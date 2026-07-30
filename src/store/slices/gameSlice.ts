@@ -123,6 +123,9 @@ const gameSlice = createSlice({
       state.gameState = GameState.IDLE
       state.subState = SubState.NONE
     },
+    showGuide(state) {
+      state.gameState = GameState.GUIDE
+    },
     tick(state, action: PayloadAction<{ remainingTime: number; elapsedTime: number }>) {
       state.remainingTime = action.payload.remainingTime
       state.elapsedTime = action.payload.elapsedTime
@@ -228,6 +231,7 @@ export const {
   resumeGame,
   endGame,
   resetToIdle,
+  showGuide,
   tick,
   addScore,
   setCombo,

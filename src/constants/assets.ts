@@ -33,6 +33,8 @@ export const ASSETS = {
     buttonQuit: `${IMG}/ui-button-quit.png`,
     buttonRetry: `${IMG}/ui-button-retry.png`,
     buttonShare: `${IMG}/ui-button-share.png`,
+    buttonConfirm: `${IMG}/ui-button-confirm.png`,
+    instruction: `${IMG}/ui-instruction.jpg`,
     starOn: `${IMG}/ui-star-on.png`,
     starOff: `${IMG}/ui-star-off.png`,
     feverFull: `${IMG}/ui-fever-full.png`,
