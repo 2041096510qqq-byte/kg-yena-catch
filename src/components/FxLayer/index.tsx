@@ -64,6 +64,7 @@ export default function FxLayer() {
       <div ref={comboRef} className="combo-title-popup" />
       {isFever && (
         <>
+          <div className="fever-bg" />
           <div className="fever-overlay">FEVER!</div>
           <div className="fever-sparkles" aria-hidden="true">
             {FEVER_SPARKLES.map(sparkle => (
