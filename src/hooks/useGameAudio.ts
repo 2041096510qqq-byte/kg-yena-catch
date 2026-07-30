@@ -20,58 +20,16 @@ const FILE_SFX: Partial<Record<SfxType, string>> = {
   fever: ASSETS.audio.feverBoost,
 }
 
-// Cache audio elements to avoid creating new instances on each play
-const sfxAudioCache: Partial<Record<SfxType, HTMLAudioElement>> = {}
-
-function getSfxAudio(type: SfxType): HTMLAudioElement | null {
-  const file = FILE_SFX[type]
-  if (!file) return null
-
-  if (!sfxAudioCache[type]) {
-    const audio = new Audio(file)
-    audio.volume = 0.65
-    sfxAudioCache[type] = audio
-  }
-  return sfxAudioCache[type]
-}
-
-// Reset SFX cache when game restarts
-export function resetSfxCache() {
-  Object.keys(sfxAudioCache).forEach(key => {
-    const audio = sfxAudioCache[key as SfxType]
-    if (audio) {
-      audio.pause()
-      audio.currentTime = 0
-    }
-    delete sfxAudioCache[key as SfxType]
-  })
-  // Reset BGM
-  if (bgmAudio) {
-    bgmAudio.pause()
-    bgmAudio.currentTime = 0
-  }
-  // Reset AudioContext
-  if (audioContext && audioContext.state !== 'closed') {
-    audioContext.close().catch(() => {})
-  }
-  audioContext = null
-}
-
 let bgmAudio: HTMLAudioElement | null = null
 let audioContext: AudioContext | null = null
 let activeGameAudioOwners = 0
 let gameAudioOwnerToken = 0
 
-function createBGM(): HTMLAudioElement {
-  bgmAudio = new Audio(ASSETS.audio.bgmGame)
-  bgmAudio.loop = true
-  bgmAudio.volume = 0.35
-  return bgmAudio
-}
-
 function getBGM(): HTMLAudioElement {
   if (!bgmAudio) {
-    return createBGM()
+    bgmAudio = new Audio(ASSETS.audio.bgmGame)
+    bgmAudio.loop = true
+    bgmAudio.volume = 0.35
   }
   return bgmAudio
 }
@@ -81,18 +39,6 @@ function getAudioContext(): AudioContext {
     audioContext = new AudioContext()
   }
   return audioContext
-}
-
-function ensureAudioContextRunning(): Promise<void> {
-  const ctx = getAudioContext()
-  if (ctx.state === 'suspended') {
-    return ctx.resume()
-  }
-  if (ctx.state === 'closed') {
-    audioContext = new AudioContext()
-    return audioContext.resume()
-  }
-  return Promise.resolve()
 }
 
 function playSyntheticSFX(type: SfxType) {
@@ -140,15 +86,17 @@ export function releaseGameAudioOwner() {
 export function useGameAudio() {
   const playBGM = useCallback(async () => {
     try {
-      await ensureAudioContextRunning()
+      const ctx = getAudioContext()
+      if (ctx.state !== 'running') {
+        // Resume without awaiting so the call stays inside the user-gesture window on mobile.
+        void ctx.resume().catch(() => undefined)
+      }
     } catch {
-      // AudioContext resume is optional and must not block BGM.
+      // AudioContext construction/resume is optional and must not block BGM.
     }
 
     try {
-      const bgm = getBGM()
-      bgm.currentTime = 0
-      await bgm.play().catch(() => undefined)
+      await getBGM().play().catch(() => undefined)
     } catch {
       // Audio element construction can fail in non-browser environments.
     }
@@ -163,30 +111,28 @@ export function useGameAudio() {
   }, [])
 
   const playSFX = useCallback((type: SfxType) => {
-    const tryPlay = () => {
-      const audio = getSfxAudio(type)
-      if (!audio) {
-        playSyntheticSFX(type)
-        return
-      }
-
-      // Reset to beginning and play
-      audio.currentTime = 0
-
-      let didFallback = false
-      const fallback = () => {
-        if (didFallback) return
-        didFallback = true
-        playSyntheticSFX(type)
-      }
-
-      audio.addEventListener('error', fallback, { once: true })
-      audio.play().catch(fallback)
+    const file = FILE_SFX[type]
+    if (!file) {
+      playSyntheticSFX(type)
+      return
     }
 
-    ensureAudioContextRunning()
-      .then(tryPlay)
-      .catch(() => playSyntheticSFX(type))
+    let didFallback = false
+    const fallback = () => {
+      if (didFallback) return
+      didFallback = true
+      playSyntheticSFX(type)
+    }
+
+    try {
+      // Fresh instance per play so rapid collects can overlap (mobile-safe).
+      const audio = new Audio(file)
+      audio.volume = 0.65
+      audio.addEventListener('error', fallback, { once: true })
+      void audio.play().catch(fallback)
+    } catch {
+      fallback()
+    }
   }, [])
 
   return { playBGM, pauseBGM, stopBGM, playSFX }

@@ -4,14 +4,17 @@ import { RootState } from '../../store'
 import { startGame, resetToIdle } from '../../store/slices/gameSlice'
 import { STAR_THRESHOLDS } from '../../constants/game'
 import { ASSETS } from '../../constants/assets'
+import { useGameAudio } from '../../hooks/useGameAudio'
 import './ResultModal.less'
 
 const STAR_LABELS = ['太厉害了！', '做得不错！', '继续加油！', '再来一次！', '下次会更好！']
 
 export default function ResultModal() {
   const dispatch = useDispatch()
+  const { playBGM } = useGameAudio()
   const [shareFeedback, setShareFeedback] = useState('')
   const feedbackTimerRef = useRef<number>()
+  const actionLockRef = useRef(false)
   const { score, maxCombo, feverCount, collectedHearts, collectedItems, hitBombs } =
     useSelector((s: RootState) => s.game)
 
@@ -61,23 +64,33 @@ export default function ResultModal() {
     }
   }
 
-  function handleRetry(e: React.MouseEvent | React.TouchEvent) {
-    e.stopPropagation()
-    e.preventDefault()
+  function runOnce(action: () => void) {
+    return (e: React.MouseEvent | React.TouchEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      // Mobile browsers often fire touchstart then a synthetic click; guard against double actions.
+      if (actionLockRef.current) return
+      actionLockRef.current = true
+      action()
+      window.setTimeout(() => {
+        actionLockRef.current = false
+      }, 400)
+    }
+  }
+
+  const handleRetry = runOnce(() => {
+    // Unlock/resume audio inside the user gesture — same pattern as HomePage start.
+    void playBGM()
     dispatch(startGame())
-  }
+  })
 
-  function handleHome(e: React.MouseEvent | React.TouchEvent) {
-    e.stopPropagation()
-    e.preventDefault()
+  const handleHome = runOnce(() => {
     dispatch(resetToIdle())
-  }
+  })
 
-  function handleShareClick(e: React.MouseEvent | React.TouchEvent) {
-    e.stopPropagation()
-    e.preventDefault()
-    handleShare()
-  }
+  const handleShareClick = runOnce(() => {
+    void handleShare()
+  })
 
   return (
     <div className="modal-panel result-modal">
