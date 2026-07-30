@@ -1,6 +1,5 @@
-import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { startGame, showGuide } from '../../store/slices/gameSlice'
+import { startGame } from '../../store/slices/gameSlice'
 import { RootState } from '../../store'
 import { ASSETS } from '../../constants/assets'
 import { ImageButton } from '../../components/ImageButton'
@@ -11,11 +10,6 @@ export default function HomePage() {
   const dispatch = useDispatch()
   const { totalScore, bestScore } = useSelector((s: RootState) => s.game)
   const { playBGM } = useGameAudio()
-
-  useEffect(() => {
-    // Show guide page on mount
-    dispatch(showGuide())
-  }, [dispatch])
 
   function handleStart() {
     void playBGM()
