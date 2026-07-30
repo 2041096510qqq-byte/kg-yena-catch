@@ -50,10 +50,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 120px;
+  font-size: 100px;
   font-weight: 700;
-  color: #fff;
-  text-shadow: 0 0 60px #ffd700, 0 0 120px #ffd700, 0 0 180px #ff8c00;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.3);
   animation: feverFlash 1200ms ease-out forwards;
   pointer-events: none;
 }
@@ -73,13 +73,13 @@
 .fever-sparkle {
   position: absolute;
   top: -60px;
-  width: 56px;
-  height: 56px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
   animation-name: sparkleFall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  filter: drop-shadow(0 0 8px #ffd700);
+  opacity: 0.7;
 }
 
 @keyframes sparkleFall {
@@ -99,12 +99,12 @@
 .fever-bg {
   position: absolute;
   inset: 0;
-  border: 8px solid transparent;
+  border: 4px solid transparent;
   border-radius: 0;
   background:
     linear-gradient(#ffd700, #ffd700) padding-box,
     linear-gradient(to right, #ffd700, #ff8c00) border-box;
-  animation: feverBorderPulse 0.3s ease-in-out infinite alternate;
+  animation: feverBorderPulse 0.5s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
@@ -115,12 +115,12 @@
 
 @keyframes feverBorderPulse {
   from {
-    border-color: rgba(255, 215, 0, 0.3);
-    box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.1), 0 0 20px rgba(255, 215, 0, 0.3);
+    border-color: rgba(255, 215, 0, 0.1);
+    box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.05), 0 0 10px rgba(255, 215, 0, 0.1);
   }
   to {
-    border-color: rgba(255, 215, 0, 0.8);
-    box-shadow: inset 0 0 60px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.6);
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.1), 0 0 20px rgba(255, 215, 0, 0.2);
   }
 }
 
