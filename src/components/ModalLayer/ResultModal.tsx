@@ -4,7 +4,6 @@ import { RootState } from '../../store'
 import { startGame, resetToIdle } from '../../store/slices/gameSlice'
 import { STAR_THRESHOLDS } from '../../constants/game'
 import { ASSETS } from '../../constants/assets'
-import { ImageButton } from '../ImageButton'
 import './ResultModal.less'
 
 const STAR_LABELS = ['太厉害了！', '做得不错！', '继续加油！', '再来一次！', '下次会更好！']
@@ -62,6 +61,24 @@ export default function ResultModal() {
     }
   }
 
+  function handleRetry(e: React.MouseEvent | React.TouchEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    dispatch(startGame())
+  }
+
+  function handleHome(e: React.MouseEvent | React.TouchEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    dispatch(resetToIdle())
+  }
+
+  function handleShareClick(e: React.MouseEvent | React.TouchEvent) {
+    e.stopPropagation()
+    e.preventDefault()
+    handleShare()
+  }
+
   return (
     <div className="modal-panel result-modal">
       <img
@@ -97,23 +114,28 @@ export default function ResultModal() {
           </div>
         </div>
         <div className="result-buttons">
-          <ImageButton
+          <button
+            type="button"
             className="modal-btn"
-            src={ASSETS.ui.buttonRetry}
-            label="再来一局"
-            onClick={() => dispatch(startGame())}
-          />
-          <ImageButton
+            onClick={handleRetry}
+            onTouchStart={handleRetry}
+          >
+            <img src={ASSETS.ui.buttonRetry} alt="再来一局" />
+          </button>
+          <button
+            type="button"
             className="modal-btn"
-            src={ASSETS.ui.buttonShare}
-            label="分享成绩"
-            onClick={handleShare}
-          />
+            onClick={handleShareClick}
+            onTouchStart={handleShareClick}
+          >
+            <img src={ASSETS.ui.buttonShare} alt="分享成绩" />
+          </button>
         </div>
         <button
           type="button"
           className="result-home-link"
-          onClick={() => dispatch(resetToIdle())}
+          onClick={handleHome}
+          onTouchStart={handleHome}
         >
           返回主界面
         </button>
