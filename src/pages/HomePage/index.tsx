@@ -48,7 +48,7 @@ export default function HomePage() {
             label="皮肤选择暂未开放"
             disabled
           />
-          <span className="skin-label">皮肤：{selectedSkin}</span>
+          <span className="skin-label">皮肤</span>
         </div>
         <div className="start-control">
           <ImageButton
