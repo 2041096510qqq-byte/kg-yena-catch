@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { startGame, showGuide } from '../../store/slices/gameSlice'
 import { RootState } from '../../store'
 import { ASSETS } from '../../constants/assets'
