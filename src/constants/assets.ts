@@ -28,7 +28,7 @@ export const ASSETS = {
     iconPlay: `${IMG}/ui-icon-play.png`,
     buttonSkin: `${IMG}/ui-button-skin.png`,
     buttonPause: `${IMG}/ui-button-pause.png`,
-    modalBackground: `${IMG}/ui-modal-background.png`,
+    modalBackground: `${IMG}/ui-modal-background1.png`,
     buttonResume: `${IMG}/ui-button-resume.png`,
     buttonQuit: `${IMG}/ui-button-quit.png`,
     buttonRetry: `${IMG}/ui-button-retry.png`,
