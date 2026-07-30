@@ -3,10 +3,10 @@ import { useDispatch } from 'react-redux'
 import { store } from '../store'
 import {
   tick, endGame, addScore, setCombo, incrementFeverGauge,
-  triggerStun, endStun, endInvincible, recordCollect,
+  triggerStun, endStun, endInvincible, loseLife, recordCollect,
   showComboTitle, endFever,
 } from '../store/slices/gameSlice'
-import { SubState, ElementType } from '../constants/enum'
+import { GameState, SubState, ElementType } from '../constants/enum'
 import { GameElement } from '../constants/enum'
 import { useGameInput } from './useGameInput'
 import { useGameElements } from './useGameElements'
@@ -83,15 +83,19 @@ export function useGameLoop() {
       if (invincibleTimerRef.current <= 0 && store.getState().game.subState !== SubState.STUNNED) {
         playSFX('bomb')
         playSFX('stun')
-        dispatch(addScore({ delta: -2, x: screenX, y: screenY }))
-        comboRef.current = 0
-        dispatch(setCombo(0))
-        comboTitleShownRef.current = 0
         dispatch(recordCollect(ElementType.BOMB))
-        dispatch(triggerStun())
-        stunTimerRef.current = STUN_DURATION
-        invincibleTimerRef.current = INVINCIBLE_DURATION
-        spawnParticles('bomb', el.x, particleY)
+        dispatch(loseLife())
+        // Only trigger stun if game is still playing (lives > 0)
+        if (store.getState().game.gameState === GameState.PLAYING) {
+          dispatch(addScore({ delta: -2, x: screenX, y: screenY }))
+          comboRef.current = 0
+          dispatch(setCombo(0))
+          comboTitleShownRef.current = 0
+          dispatch(triggerStun())
+          stunTimerRef.current = STUN_DURATION
+          invincibleTimerRef.current = INVINCIBLE_DURATION
+          spawnParticles('bomb', el.x, particleY)
+        }
       }
     } else if (el.type === ElementType.HEART) {
       playSFX('heart')

@@ -23,6 +23,7 @@ interface GameUIState {
   collectedHearts: number
   collectedItems: number
   hitBombs: number
+  lives: number
   comboTitle: string | null
   lastScoreDelta: { value: number; x: number; y: number } | null
   totalScore: number
@@ -67,6 +68,7 @@ const initialState: GameUIState = {
   collectedHearts: 0,
   collectedItems: 0,
   hitBombs: 0,
+  lives: 3,
   comboTitle: null,
   lastScoreDelta: null,
   ...persisted,
@@ -91,6 +93,7 @@ const gameSlice = createSlice({
       state.collectedHearts = 0
       state.collectedItems = 0
       state.hitBombs = 0
+      state.lives = 3
       state.comboTitle = null
       state.lastScoreDelta = null
     },
@@ -173,6 +176,18 @@ const gameSlice = createSlice({
       state.stunRemaining = 0
       state.invincibleRemaining = INVINCIBLE_DURATION
     },
+    loseLife(state) {
+      state.lives -= 1
+      if (state.lives <= 0) {
+        state.gameState = GameState.RESULT
+        state.totalScore += state.score
+        persist('totalScore', state.totalScore)
+        if (state.score > state.bestScore) {
+          state.bestScore = state.score
+          persist('bestScore', state.bestScore)
+        }
+      }
+    },
     endInvincible(state) {
       state.invincibleRemaining = 0
     },
@@ -223,6 +238,7 @@ export const {
   triggerStun,
   endStun,
   endInvincible,
+  loseLife,
   recordCollect,
   showFloatScore,
   showComboTitle,
