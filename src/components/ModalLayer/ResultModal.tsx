@@ -4,7 +4,7 @@ import { RootState } from '../../store'
 import { startGame, resetToIdle } from '../../store/slices/gameSlice'
 import { STAR_THRESHOLDS } from '../../constants/game'
 import { ASSETS } from '../../constants/assets'
-import { useGameAudio } from '../../hooks/useGameAudio'
+import { resetAudioSession, useGameAudio } from '../../hooks/useGameAudio'
 import './ResultModal.less'
 
 const STAR_LABELS = ['太厉害了！', '做得不错！', '继续加油！', '再来一次！', '下次会更好！']
@@ -65,10 +65,8 @@ export default function ResultModal() {
   }
 
   function runOnce(action: () => void) {
-    return (e: React.MouseEvent | React.TouchEvent) => {
-      e.stopPropagation()
-      e.preventDefault()
-      // Mobile browsers often fire touchstart then a synthetic click; guard against double actions.
+    return () => {
+      // Guard against touchstart + click both firing after we stop stealing UI touches.
       if (actionLockRef.current) return
       actionLockRef.current = true
       action()
@@ -79,9 +77,10 @@ export default function ResultModal() {
   }
 
   const handleRetry = runOnce(() => {
-    // Unlock/resume audio inside the user gesture — same pattern as HomePage start.
-    void playBGM()
+    // Always start the round first so a mobile audio glitch cannot swallow the click.
     dispatch(startGame())
+    resetAudioSession()
+    void playBGM()
   })
 
   const handleHome = runOnce(() => {

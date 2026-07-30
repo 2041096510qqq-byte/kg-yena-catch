@@ -11,6 +11,8 @@ import {
 interface GameUIState {
   gameState: GameState
   subState: SubState
+  /** Bumps on every new round so GamePage can remount and drop stale refs/DOM/audio owners. */
+  gameSession: number
   score: number
   combo: number
   maxCombo: number
@@ -56,6 +58,7 @@ const persisted = loadPersisted()
 const initialState: GameUIState = {
   gameState: GameState.IDLE,
   subState: SubState.NONE,
+  gameSession: 0,
   score: 0,
   combo: 0,
   maxCombo: 0,
@@ -79,6 +82,7 @@ const gameSlice = createSlice({
   initialState,
   reducers: {
     startGame(state) {
+      state.gameSession += 1
       state.gameState = GameState.COUNTDOWN
       state.subState = SubState.NONE
       state.score = 0

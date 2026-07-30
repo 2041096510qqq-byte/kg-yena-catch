@@ -3,7 +3,7 @@ import { startGame } from '../../store/slices/gameSlice'
 import { RootState } from '../../store'
 import { ASSETS } from '../../constants/assets'
 import { ImageButton } from '../../components/ImageButton'
-import { useGameAudio } from '../../hooks/useGameAudio'
+import { resetAudioSession, useGameAudio } from '../../hooks/useGameAudio'
 import './index.less'
 
 export default function HomePage() {
@@ -12,6 +12,7 @@ export default function HomePage() {
   const { playBGM } = useGameAudio()
 
   function handleStart() {
+    resetAudioSession()
     void playBGM()
     dispatch(startGame())
   }

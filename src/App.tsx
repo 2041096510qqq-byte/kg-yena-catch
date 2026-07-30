@@ -11,6 +11,7 @@ import { showGuide } from './store/slices/gameSlice'
 export default function App() {
   const dispatch = useDispatch()
   const gameState = useSelector((s: RootState) => s.game.gameState)
+  const gameSession = useSelector((s: RootState) => s.game.gameSession)
   const initialized = useRef(false)
 
   useEffect(() => {
@@ -24,7 +25,9 @@ export default function App() {
     <GameViewport>
       {gameState === GameState.GUIDE && <GuidePage />}
       {gameState === GameState.IDLE && <HomePage />}
-      {gameState !== GameState.IDLE && gameState !== GameState.GUIDE && <GamePage />}
+      {gameState !== GameState.IDLE && gameState !== GameState.GUIDE && (
+        <GamePage key={gameSession} />
+      )}
     </GameViewport>
   )
 }

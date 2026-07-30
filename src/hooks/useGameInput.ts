@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { FrameInput } from '../constants/enum'
 
+function isUiControl(target: EventTarget | null) {
+  return target instanceof Element
+    && Boolean(target.closest('button, a, input, textarea, select, label, [role="button"]'))
+}
+
 export function useGameInput() {
   const frameInputRef = useRef<FrameInput>({
     pointerX: null,
@@ -8,6 +13,8 @@ export function useGameInput() {
   })
 
   useEffect(() => {
+    let ignoreUiGesture = false
+
     function getNormalizedX(clientX: number): number {
       const stage = document.querySelector('.game-stage') as HTMLElement
       if (!stage) return 0.5
@@ -16,24 +23,33 @@ export function useGameInput() {
     }
 
     function onTouchStart(e: TouchEvent) {
+      // Don't steal taps on buttons/links — preventDefault here would suppress their click.
+      ignoreUiGesture = isUiControl(e.target)
+      if (ignoreUiGesture) return
+
       e.preventDefault()
       const t = e.touches[0]
       frameInputRef.current = { pointerX: getNormalizedX(t.clientX), pointerActive: true }
     }
 
     function onTouchMove(e: TouchEvent) {
+      if (ignoreUiGesture) return
       e.preventDefault()
       if (!frameInputRef.current.pointerActive) return
       const t = e.touches[0]
       frameInputRef.current.pointerX = getNormalizedX(t.clientX)
     }
 
-    function onTouchEnd(e: TouchEvent) {
-      e.preventDefault()
+    function onTouchEnd() {
+      if (ignoreUiGesture) {
+        ignoreUiGesture = false
+        return
+      }
       frameInputRef.current = { pointerX: null, pointerActive: false }
     }
 
     function onMouseDown(e: MouseEvent) {
+      if (isUiControl(e.target)) return
       frameInputRef.current = { pointerX: getNormalizedX(e.clientX), pointerActive: true }
     }
 

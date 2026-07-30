@@ -25,6 +25,19 @@ let audioContext: AudioContext | null = null
 let activeGameAudioOwners = 0
 let gameAudioOwnerToken = 0
 
+const activeSfx = new Set<HTMLAudioElement>()
+const sfxTemplates: Partial<Record<SfxType, HTMLAudioElement>> = {}
+
+function stopAudioElement(audio: HTMLAudioElement | null | undefined) {
+  if (!audio) return
+  try {
+    audio.pause()
+    if (audio.currentTime) audio.currentTime = 0
+  } catch {
+    // Best-effort stop; avoid src/load teardown which can hang on some mobile browsers.
+  }
+}
+
 function getBGM(): HTMLAudioElement {
   if (!bgmAudio) {
     bgmAudio = new Audio(ASSETS.audio.bgmGame)
@@ -64,6 +77,57 @@ function stopSharedBGM() {
   bgmAudio?.pause()
   if (bgmAudio) {
     bgmAudio.currentTime = 0
+  }
+}
+
+/**
+ * Hard-reset audio for a new round. Must run inside a user gesture on mobile
+ * so BGM/SFX templates are unlocked for the rest of the session.
+ * Must never throw — callers rely on continuing into startGame().
+ */
+export function resetAudioSession() {
+  try {
+    activeSfx.forEach(stopAudioElement)
+    activeSfx.clear()
+
+    stopAudioElement(bgmAudio)
+    bgmAudio = null
+
+    ;(Object.keys(sfxTemplates) as SfxType[]).forEach(key => {
+      stopAudioElement(sfxTemplates[key])
+      delete sfxTemplates[key]
+    })
+
+    try {
+      const ctx = getAudioContext()
+      if (ctx.state !== 'running') {
+        void ctx.resume().catch(() => undefined)
+      }
+    } catch {
+      // AudioContext construction/resume is optional.
+    }
+
+    // Prime file SFX during the gesture so later cloneNode()/play() works on iOS.
+    ;(Object.entries(FILE_SFX) as [SfxType, string][]).forEach(([type, file]) => {
+      try {
+        const audio = new Audio(file)
+        audio.muted = true
+        sfxTemplates[type] = audio
+        void audio.play().then(() => {
+          audio.pause()
+          audio.currentTime = 0
+          audio.muted = false
+          audio.volume = 0.65
+        }).catch(() => {
+          audio.muted = false
+          audio.volume = 0.65
+        })
+      } catch {
+        // Keep going; playSFX can still fall back per event.
+      }
+    })
+  } catch {
+    // Never block starting a new round because audio reset failed.
   }
 }
 
@@ -118,18 +182,40 @@ export function useGameAudio() {
     }
 
     let didFallback = false
-    const fallback = () => {
+    const fallback = (reason?: unknown) => {
       if (didFallback) return
+      // Interrupted playback should stay silent — synthetic beeps here cause mobile "chaos".
+      if (
+        reason
+        && typeof reason === 'object'
+        && 'name' in reason
+        && (reason as { name?: string }).name === 'AbortError'
+      ) {
+        return
+      }
       didFallback = true
       playSyntheticSFX(type)
     }
 
     try {
-      // Fresh instance per play so rapid collects can overlap (mobile-safe).
-      const audio = new Audio(file)
+      const template = sfxTemplates[type]
+      // Prefer clone of gesture-unlocked template on mobile; otherwise a fresh instance.
+      const audio = template
+        ? (template.cloneNode(true) as HTMLAudioElement)
+        : new Audio(file)
+      audio.muted = false
       audio.volume = 0.65
-      audio.addEventListener('error', fallback, { once: true })
-      void audio.play().catch(fallback)
+      activeSfx.add(audio)
+      const release = () => activeSfx.delete(audio)
+      audio.addEventListener('ended', release, { once: true })
+      audio.addEventListener('error', () => {
+        release()
+        fallback()
+      }, { once: true })
+      void audio.play().catch(err => {
+        release()
+        fallback(err)
+      })
     } catch {
       fallback()
     }
