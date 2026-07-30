@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { ElementType } from '../../constants/enum'
+import { ElementType, GameState } from '../../constants/enum'
 import type { GameElement, Particle } from '../../constants/enum'
 import { ASSETS } from '../../constants/assets'
 import './CoreStage.less'
@@ -8,6 +8,7 @@ interface CoreStageProps {
   elementsRef: React.MutableRefObject<GameElement[]>
   particlesRef: React.MutableRefObject<Particle[]>
   updateParticles: (dt: number) => Particle[]
+  gameState: GameState
 }
 
 const ELEMENT_IMGS: Record<ElementType, string> = {
@@ -22,11 +23,25 @@ const PARTICLE_IMGS: Record<Particle['shape'], string> = {
   smoke: ASSETS.effects.particleSmoke,
 }
 
-export function CoreStage({ elementsRef, particlesRef, updateParticles }: CoreStageProps) {
+export function CoreStage({ elementsRef, particlesRef, updateParticles, gameState }: CoreStageProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const elementNodesRef = useRef<Map<string, HTMLDivElement>>(new Map())
   const particleNodesRef = useRef<Map<string, HTMLDivElement>>(new Map())
   const lastTimeRef = useRef<number>(performance.now())
+  const prevGameStateRef = useRef(gameState)
+
+  // Clear DOM nodes and reset timer when game restarts
+  useEffect(() => {
+    if (prevGameStateRef.current !== GameState.IDLE && gameState === GameState.COUNTDOWN) {
+      // Game is restarting, clear DOM nodes
+      elementNodesRef.current.forEach(node => node.remove())
+      elementNodesRef.current.clear()
+      particleNodesRef.current.forEach(node => node.remove())
+      particleNodesRef.current.clear()
+      lastTimeRef.current = performance.now()
+    }
+    prevGameStateRef.current = gameState
+  }, [gameState])
 
   useEffect(() => {
     let rafId: number

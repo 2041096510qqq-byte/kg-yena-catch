@@ -73,7 +73,7 @@ export default function GamePage() {
     >
       <HUD />
       <YenaStage />
-      <CoreStage elementsRef={elementsRef} particlesRef={particlesRef} updateParticles={updateParticles} />
+      <CoreStage elementsRef={elementsRef} particlesRef={particlesRef} updateParticles={updateParticles} gameState={gameState} />
       <PlayerArea playerXRef={playerXRef} />
       <FxLayer />
       <ModalLayer />
